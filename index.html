@@ -47,7 +47,7 @@ body{font-family:system-ui,Arial,sans-serif;background:#f3f4f6;color:#374151;fon
 #tLout{background:none;border:1px solid #e5e7eb;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;color:#6b7280}
 #sbToggle{background:none;border:none;cursor:pointer;padding:6px;border-radius:6px;color:#374151;font-size:18px}
 #bWrap{display:flex;flex:1;min-height:calc(100vh - 50px)}
-#sidebar{width:220px;background:#1b4332;display:flex;flex-direction:column;transition:width .25s;flex-shrink:0;overflow:hidden}
+#sidebar{width:220px;background:#1b4332;display:flex;flex-direction:column;transition:width .25s;flex-shrink:0;overflow:hidden;position:sticky;top:50px;height:calc(100vh - 50px);overflow-y:auto}
 #sidebar.col{width:0}
 .sS{padding:10px 0 4px 14px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#52796f;margin-top:6px;white-space:nowrap}
 .sB{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;color:#a7f3d0;font-size:13px;font-weight:500;border:none;background:none;width:100%;text-align:left;white-space:nowrap;transition:background .15s}
@@ -185,8 +185,9 @@ input[type=checkbox]{accent-color:#2d6a4f;width:14px;height:14px;cursor:pointer}
 .kpiLbl{font-size:11px;color:#6b7280;margin-top:3px}
 .dashTable{width:100%;border-collapse:collapse;font-size:12px}
 .dashTable th{background:#f0fdf4;padding:7px 8px;text-align:left;font-weight:700;font-size:11px;color:#374151;border-bottom:2px solid #2d6a4f;white-space:nowrap}
-.dashTable td{padding:6px 8px;border-bottom:1px solid #f3f4f6;vertical-align:middle}
-.dashTable td.num{text-align:right}
+.dashTable td{padding:6px 8px;border-bottom:1px solid #f3f4f6;vertical-align:middle;text-align:center}
+.dashTable td:first-child{text-align:left}
+.dashTable td.num{text-align:center}
 .dashTable tr:hover td{background:#f9fafb}
 .barWrap{background:#e5e7eb;border-radius:4px;height:8px;overflow:hidden;min-width:60px}
 .barFill{height:100%;border-radius:4px;background:#2d6a4f;transition:width .4s}
@@ -375,8 +376,50 @@ var ROLE_MODULES={
   hielera:['historial'],
   administrativo:['historial']
 };
-var ESEQ=['Base_Salida','Empacadora_Entrada','Empacadora_Salida','Camaronera_Entrada','Camaronera_Salida','Empacadora1_Entrada','Empacadora1_Salida','Empacadora2_Entrada','Empacadora2_Salida','Empacadora3_Entrada','Empacadora3_Salida','Empacadora4_Entrada','Empacadora4_Salida','Base_Entrada'];
-var EL={'Base_Salida':'Base-Sal','Empacadora_Entrada':'Emp-Ent','Empacadora_Salida':'Emp-Sal','Camaronera_Entrada':'Cam-Ent','Camaronera_Salida':'Cam-Sal','Empacadora1_Entrada':'Emp1-Ent','Empacadora1_Salida':'Emp1-Sal','Empacadora2_Entrada':'Emp2-Ent','Empacadora2_Salida':'Emp2-Sal','Empacadora3_Entrada':'Emp3-Ent','Empacadora3_Salida':'Emp3-Sal','Empacadora4_Entrada':'Emp4-Ent','Empacadora4_Salida':'Emp4-Sal','Base_Entrada':'Base-Ent'};
+var ESEQ=['Base_Salida','Empacadora_Entrada','Empacadora_Salida','Camaronera_Entrada','Camaronera_Salida','Empacadora1_Entrada','Empacadora1_Salida','Empacadora2_Entrada','Empacadora2_Salida','Empacadora3_Entrada','Empacadora3_Salida','Base_Entrada'];
+var EL={
+  'Base_Salida':    'Base-Sal',
+  'Empacadora_Entrada': 'RetGuia-Ent',
+  'Empacadora_Salida':  'RetGuia-Sal',
+  'Camaronera_Entrada': 'Cam-Ent',
+  'Camaronera_Salida':  'Cam-Sal',
+  'Empacadora1_Entrada':'TPI-Ent',
+  'Empacadora1_Salida': 'TPI-Sal',
+  'Empacadora2_Entrada':'DescPris-Ent',
+  'Empacadora2_Salida': 'DescPris-Sal',
+  'Empacadora3_Entrada':'DescOtras-Ent',
+  'Empacadora3_Salida': 'DescOtras-Sal',
+  'Base_Entrada':   'Base-Ent'
+};
+// Nombres largos para encabezados completos
+var EL_FULL={
+  'Base_Salida':    'Base — Salida',
+  'Empacadora_Entrada': 'Retiro Guías-Mat. — Entrada',
+  'Empacadora_Salida':  'Retiro Guías-Mat. — Salida',
+  'Camaronera_Entrada': 'Camaronera — Entrada',
+  'Camaronera_Salida':  'Camaronera — Salida',
+  'Empacadora1_Entrada':'TPI — Entrada',
+  'Empacadora1_Salida': 'TPI — Salida',
+  'Empacadora2_Entrada':'Desc. Emp. Priscila — Entrada',
+  'Empacadora2_Salida': 'Desc. Emp. Priscila — Salida',
+  'Empacadora3_Entrada':'Desc. Otras Emp. — Entrada',
+  'Empacadora3_Salida': 'Desc. Otras Emp. — Salida',
+  'Base_Entrada':   'Base — Entrada (Fin)'
+};
+// Etiquetas T01..T11 con descripción
+var T_LABELS=[
+  'T01 Espera Salida Base',
+  'T02 Base→Ret.Guías',
+  'T03 Ret.Guías',
+  'T04 Ret.Guías→Cam.',
+  'T05 Cam.',
+  'T06 Cam.→TPI',
+  'T07 TPI',
+  'T08 TPI→Desc.Priscila',
+  'T09 Desc.Priscila',
+  'T10 Desc.Priscila→Desc.Otras',
+  'T11 Desc.Otras'
+];
 var ECL={pendiente:'',en_ruta:'bRu',retornando:'bRet',descargando:'bDesc',completado:'bBa'};
 var ETX={pendiente:'Pendiente',en_ruta:'En Ruta',retornando:'Retornando',descargando:'Descargando',completado:'Completado'};
 
@@ -750,7 +793,7 @@ function tabTrazabilidad(){return`<div id="tab_trazabilidad" style="display:none
   <div class="sL">Registrar Etapa — <span id="trz_ftitle" style="color:#2d6a4f;font-weight:800"></span></div>
   <div class="g4">
     <div class="ff"><label>Etapa</label>
-      <select id="trz_etapa">
+      <select id="trz_etapa" onchange="onTrzEtapaChange()">
         <option value="Base_Salida">Base — Salida</option>
         <option value="Empacadora_Entrada">Empacadora — Entrada</option>
         <option value="Empacadora_Salida">Empacadora — Salida</option>
@@ -1088,7 +1131,7 @@ function renderDespachos(){
     var sel=APP._selectedIds.indexOf(d._id)>=0;
     return'<tr class="'+(sel?'sel':'')+'"><td class="chkC"><input type="checkbox" '+(sel?'checked':'')+' onchange="toggleChk(\''+d._id+'\')"></td>'+
       '<td style="color:#9ca3af;font-size:10px">'+(d.n_row||'')+'</td><td style="color:#9ca3af;font-size:10px">'+(d.id_csv||'')+'</td>'+
-      '<td><strong style="color:#1b4332">'+(d.guia||'—')+'</strong></td><td>'+(d.fecha||'')+'</td>'+
+      '<td><strong style="color:#1b4332">'+(d.guia||'—')+'</strong></td><td>'+fmtF(d.fecha||'')+'</td>'+
       '<td><strong>'+(d.disco||'')+'</strong></td><td><strong>'+(d.placa||'')+'</strong></td>'+
       '<td style="color:#9ca3af;font-size:10px">'+(d.cedula||'')+'</td><td>'+(d.chofer||'')+'</td>'+
       '<td style="color:#9ca3af;font-size:10px">'+(d.celular||'')+'</td><td>'+(d.camaronera||'')+'</td><td>'+(d.destino||'')+'</td>'+
@@ -1450,11 +1493,46 @@ function abrirTrz(id){
   var d=APP.despachos.find(function(x){return x._id===id;});if(!d)return;
   APP._trzId=id;APP._trzEditIdx=null;gid('trz_rid').value=id;
   gid('trz_ftitle').textContent='Guía '+d.guia+' | '+d.placa;
-  setNow('trz_fecha','trz_hora');gid('trz_obs_sel').value='';gid('trz_obs_custom').value='';gid('trz_obs_custom').style.display='none';
-  gid('trz_etapa').value=sigEtapa(d.etapas||[]);
+  setNow('trz_fecha','trz_hora');
+  gid('trz_obs_sel').value='';gid('trz_obs_custom').value='';gid('trz_obs_custom').style.display='none';
+  var nextEt=sigEtapa(d.etapas||[]);
+  gid('trz_etapa').value=nextEt;
+  // Auto-rellenar observación de la entrada previa si es una Salida
+  autoRellenarObs(d,nextEt);
   renderTL(d);gid('trz_done').style.display=d.estado==='completado'?'block':'none';
   gid('trz_btnG').textContent='➕ Agregar Etapa';gid('trz_cancelEdit').style.display='none';
   gid('trz_form').style.display='block';gid('trz_form').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// Al cambiar la etapa en el select también auto-rellenar
+function onTrzEtapaChange(){
+  var id=APP._trzId;if(!id)return;
+  var d=APP.despachos.find(function(x){return x._id===id;});if(!d)return;
+  var etapa=gid('trz_etapa').value;
+  autoRellenarObs(d,etapa);
+}
+
+// Si la etapa es una Salida, buscar la Entrada correspondiente y pre-rellenar su obs
+function autoRellenarObs(d,etapa){
+  if(!etapa||!etapa.endsWith('_Salida'))return;
+  var entradaKey=etapa.replace('_Salida','_Entrada');
+  var etapas=d.etapas||[];
+  // Buscar la entrada más reciente de ese tipo
+  var entradas=etapas.filter(function(e){return e.etapa===entradaKey;});
+  if(!entradas.length)return;
+  var ultimaEntrada=entradas[entradas.length-1];
+  var obsVal=ultimaEntrada.obs||'';
+  if(!obsVal)return;
+  var sel=gid('trz_obs_sel');
+  var opt=sel?Array.from(sel.options).find(function(o){return o.value===obsVal&&o.value!==''&&o.value!=='__otro__';}):null;
+  if(opt){
+    sel.value=obsVal;
+    gid('trz_obs_custom').style.display='none';
+  }else if(obsVal){
+    if(sel)sel.value='__otro__';
+    gid('trz_obs_custom').value=obsVal;
+    gid('trz_obs_custom').style.display='block';
+  }
 }
 function renderTL(d){
   var et=d.etapas||[];var cont=gid('trz_tl');var canEdit=isSA();
@@ -1698,15 +1776,79 @@ function renderDashboard(){
   var estados=['pendiente','en_ruta','retornando','descargando','completado'];
   charts+='<div class="dashCard"><div class="dashCardTitle">📊 Estado de Despachos</div><div class="tW"><table class="dashTable"><thead><tr><th>Estado</th><th>Cantidad</th><th>%</th><th style="width:120px">Barra</th></tr></thead><tbody>'+estados.map(function(e){var cnt=data.filter(function(d){return d.estado===e;}).length;var pct=total>0?(cnt/total*100).toFixed(1):'0.0';return'<tr><td><strong>'+(ETX[e]||e)+'</strong></td><td class="num">'+cnt+'</td><td><span class="pct">'+pct+'%</span></td><td><div class="barWrap"><div class="barFill" style="width:'+pct+'%"></div></div></td></tr>';}).join('')+'</tbody></table></div></div>';
 
-  // Tiempos promedio por etapa
-  var pares=[];for(var ii=0;ii<ESEQ.length-1;ii++)pares.push([ESEQ[ii],ESEQ[ii+1]]);
-  var tRows=pares.map(function(par){
-    var mins=[];data.forEach(function(d){var m=minEntrePair(d,par[0],par[1]);if(m!==null)mins.push(m);});
-    if(!mins.length)return null;
+  // ── Tiempos promedio por etapa (con encabezados descriptivos) ──
+  // Pares: [desde, hasta, etiqueta T0x]
+  var paresTiempo=[
+    // T01: Tiempo de espera = tiempo entre la última entrada previa de la misma placa y Base_Salida
+    // Se calcula aparte abajo
+    ['Base_Salida','Empacadora_Entrada','T02 Base→Ret.Guías'],
+    ['Empacadora_Entrada','Empacadora_Salida','T03 En Ret.Guías'],
+    ['Empacadora_Salida','Camaronera_Entrada','T04 Ret.Guías→Cam.'],
+    // Ruta directa Base→Cam si no hay etapa Empacadora
+    ['Camaronera_Entrada','Camaronera_Salida','T05 En Cam.'],
+    ['Camaronera_Salida','Empacadora1_Entrada','T06 Cam.→TPI'],
+    ['Empacadora1_Entrada','Empacadora1_Salida','T07 En TPI'],
+    ['Empacadora1_Salida','Empacadora2_Entrada','T08 TPI→Desc.Priscila'],
+    ['Empacadora2_Entrada','Empacadora2_Salida','T09 En Desc.Priscila'],
+    ['Empacadora2_Salida','Empacadora3_Entrada','T10 Desc.Priscila→Desc.Otras'],
+    ['Empacadora3_Entrada','Empacadora3_Salida','T11 En Desc.Otras']
+  ];
+
+  // Calcular T01 Espera: tiempo entre la última Base_Entrada de esa placa y la Base_Salida actual
+  function calcT01Espera(d){
+    var etapas=d.etapas||[];
+    var baseSal=etapas.find(function(e){return e.etapa==='Base_Salida';});
+    if(!baseSal)return null;
+    // Buscar la Base_Entrada más reciente de la misma placa en despachos anteriores
+    var placar=d.placa;var tSal=new Date(baseSal.fecha+'T'+baseSal.hora+':00').getTime();
+    var ultEntrada=null;
+    APP.despachos.forEach(function(dx){
+      if(dx._id===d._id||dx.placa!==placar)return;
+      var etx=dx.etapas||[];
+      var be=etx.filter(function(e){return e.etapa==='Base_Entrada';});
+      be.forEach(function(e){
+        var t=new Date(e.fecha+'T'+e.hora+':00').getTime();
+        if(t<tSal&&(!ultEntrada||t>ultEntrada))ultEntrada=t;
+      });
+      // También chequear seg_entrada
+      if(dx.seg_entrada&&dx.seg_entrada.fecha){
+        var t2=new Date(dx.seg_entrada.fecha+'T'+(dx.seg_entrada.hora||'00:00')+':00').getTime();
+        if(t2<tSal&&(!ultEntrada||t2>ultEntrada))ultEntrada=t2;
+      }
+    });
+    if(!ultEntrada)return null;
+    return(tSal-ultEntrada)/60000;
+  }
+
+  // Calcular T02b: ruta directa Base→Camaronera cuando NO hay etapa Empacadora
+  function calcT02Directo(d){
+    var etapas=d.etapas||[];
+    var tieneEmp=etapas.find(function(e){return e.etapa==='Empacadora_Entrada'||e.etapa==='Empacadora_Salida';});
+    if(tieneEmp)return null; // si tiene etapa retiro, no calcular directo
+    var bSal=etapas.find(function(e){return e.etapa==='Base_Salida';});
+    var camEnt=etapas.find(function(e){return e.etapa==='Camaronera_Entrada';});
+    if(!bSal||!camEnt)return null;
+    return minEntre(bSal,camEnt);
+  }
+
+  var tRows=[];
+  // T01 Espera
+  var t01Mins=[];data.forEach(function(d){var m=calcT01Espera(d);if(m!==null&&m>=0)t01Mins.push(m);});
+  if(t01Mins.length){var p=avgArr(t01Mins),mn=Math.min.apply(null,t01Mins),mx=Math.max.apply(null,t01Mins);tRows.push('<tr><td style="font-size:11px;font-weight:700;color:#1e40af">T01 Espera Salida Base</td><td style="font-size:11px">Base Entrada ant. → Base Salida</td><td class="num">'+t01Mins.length+'</td><td class="num">'+pad(Math.floor(p/60))+'H'+pad(Math.floor(p%60))+'M</td><td class="num">'+pad(Math.floor(mn/60))+'H'+pad(Math.floor(mn%60))+'M</td><td class="num">'+pad(Math.floor(mx/60))+'H'+pad(Math.floor(mx%60))+'M</td></tr>');}
+
+  // T02b Directo Base→Cam (sin Retiro Guías)
+  var t02bMins=[];data.forEach(function(d){var m=calcT02Directo(d);if(m!==null)t02bMins.push(m);});
+  if(t02bMins.length){var p2=avgArr(t02bMins),mn2=Math.min.apply(null,t02bMins),mx2=Math.max.apply(null,t02bMins);tRows.push('<tr style="background:#fffbeb"><td style="font-size:11px;font-weight:700;color:#92400e">T02b Ruta Directa (sin Ret.Guías)</td><td style="font-size:11px">Base Salida → Camaronera Entrada</td><td class="num">'+t02bMins.length+'</td><td class="num">'+pad(Math.floor(p2/60))+'H'+pad(Math.floor(p2%60))+'M</td><td class="num">'+pad(Math.floor(mn2/60))+'H'+pad(Math.floor(mn2%60))+'M</td><td class="num">'+pad(Math.floor(mx2/60))+'H'+pad(Math.floor(mx2%60))+'M</td></tr>');}
+
+  // Pares estándar
+  paresTiempo.forEach(function(par){
+    var mins=[];data.forEach(function(d){var et=d.etapas||[];var e1=et.find(function(x){return x.etapa===par[0];}),e2=et.find(function(x){return x.etapa===par[1];});if(e1&&e2){var m=minEntre(e1,e2);if(m!==null)mins.push(m);}});
+    if(!mins.length)return;
     var prom=avgArr(mins),mn=Math.min.apply(null,mins),mx=Math.max.apply(null,mins);
-    return'<tr><td style="font-size:11px">'+(EL[par[0]]||par[0])+'</td><td style="font-size:11px">→ '+(EL[par[1]]||par[1])+'</td><td class="num">'+mins.length+'</td><td class="num">'+pad(Math.floor(prom/60))+'H'+pad(Math.floor(prom%60))+'M</td><td class="num">'+pad(Math.floor(mn/60))+'H'+pad(Math.floor(mn%60))+'M</td><td class="num">'+pad(Math.floor(mx/60))+'H'+pad(Math.floor(mx%60))+'M</td></tr>';
-  }).filter(Boolean).join('');
-  if(tRows)charts+='<div class="dashCard"><div class="dashCardTitle">⏱ Tiempos Promedio por Etapa</div><div class="tW"><table class="dashTable"><thead><tr><th>Desde</th><th>Hasta</th><th>Muestras</th><th>Promedio</th><th>Mínimo</th><th>Máximo</th></tr></thead><tbody>'+tRows+'</tbody></table></div></div>';
+    tRows.push('<tr><td style="font-size:11px;font-weight:700">'+par[2]+'</td><td style="font-size:11px">'+(EL_FULL[par[0]]||par[0])+' → '+(EL_FULL[par[1]]||par[1])+'</td><td class="num">'+mins.length+'</td><td class="num">'+pad(Math.floor(prom/60))+'H'+pad(Math.floor(prom%60))+'M</td><td class="num">'+pad(Math.floor(mn/60))+'H'+pad(Math.floor(mn%60))+'M</td><td class="num">'+pad(Math.floor(mx/60))+'H'+pad(Math.floor(mx%60))+'M</td></tr>');
+  });
+
+  if(tRows.length){charts+='<div class="dashCard"><div class="dashCardTitle">⏱ Tiempos Promedio por Etapa</div><div class="tW"><table class="dashTable"><thead><tr><th>Etapa</th><th>Descripción</th><th>Muestras</th><th>Promedio</th><th>Mínimo</th><th>Máximo</th></tr></thead><tbody>'+tRows.join('')+'</tbody></table></div></div>';}
 
   gid('dash_charts').innerHTML=charts;
 }
